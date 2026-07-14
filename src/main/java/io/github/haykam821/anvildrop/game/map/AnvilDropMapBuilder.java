@@ -3,18 +3,18 @@ package io.github.haykam821.anvildrop.game.map;
 import java.util.Iterator;
 
 import io.github.haykam821.anvildrop.game.AnvilDropConfig;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.core.BlockPos;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
 
 public class AnvilDropMapBuilder {
-	private static final BlockState FLOOR = Blocks.SMOOTH_STONE.getDefaultState();
-	private static final BlockState FLOOR_OUTLINE = Blocks.NETHERITE_BLOCK.getDefaultState();
-	private static final BlockState WALL = Blocks.END_STONE_BRICK_WALL.getDefaultState();
-	private static final BlockState WALL_TOP = Blocks.BIRCH_SLAB.getDefaultState();
-	private static final BlockState BARRIER = Blocks.BARRIER.getDefaultState();
+	private static final BlockState FLOOR = Blocks.SMOOTH_STONE.defaultBlockState();
+	private static final BlockState FLOOR_OUTLINE = Blocks.NETHERITE_BLOCK.defaultBlockState();
+	private static final BlockState WALL = Blocks.END_STONE_BRICK_WALL.defaultBlockState();
+	private static final BlockState WALL_TOP = Blocks.BIRCH_SLAB.defaultBlockState();
+	private static final BlockState BARRIER = Blocks.BARRIER.defaultBlockState();
 
 	private final AnvilDropConfig config;
 
@@ -26,7 +26,7 @@ public class AnvilDropMapBuilder {
 		MapTemplate template = MapTemplate.createEmpty();
 		AnvilDropMapConfig mapConfig = this.config.getMapConfig();
 
-		BlockBounds bounds = BlockBounds.of(BlockPos.ORIGIN, new BlockPos(mapConfig.getX() + 1, this.config.getStackHeight() + 3, mapConfig.getZ() + 1));
+		BlockBounds bounds = BlockBounds.of(BlockPos.ZERO, new BlockPos(mapConfig.getX() + 1, this.config.getStackHeight() + 3, mapConfig.getZ() + 1));
 		this.build(bounds, template, mapConfig);
 
 		BlockBounds clearBounds = createInnerBounds(mapConfig, this.config.getStackHeight() + 1);

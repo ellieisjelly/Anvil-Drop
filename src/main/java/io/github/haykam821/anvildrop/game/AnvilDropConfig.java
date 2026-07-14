@@ -6,8 +6,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import io.github.haykam821.anvildrop.game.map.AnvilDropMapConfig;
 import net.minecraft.SharedConstants;
-import net.minecraft.util.math.intprovider.ConstantIntProvider;
-import net.minecraft.util.math.intprovider.IntProvider;
+import net.minecraft.util.valueproviders.ConstantInt;
+import net.minecraft.util.valueproviders.IntProvider;
+import net.minecraft.util.valueproviders.IntProviders;
 import xyz.nucleoid.plasmid.api.game.common.config.WaitingLobbyConfig;
 
 public class AnvilDropConfig {
@@ -15,7 +16,7 @@ public class AnvilDropConfig {
 		return instance.group(
 			AnvilDropMapConfig.CODEC.fieldOf("map").forGetter(AnvilDropConfig::getMapConfig),
 			WaitingLobbyConfig.CODEC.fieldOf("players").forGetter(AnvilDropConfig::getPlayerConfig),
-			IntProvider.NON_NEGATIVE_CODEC.optionalFieldOf("ticks_until_close", ConstantIntProvider.create(SharedConstants.TICKS_PER_SECOND * 5)).forGetter(AnvilDropConfig::getTicksUntilClose),
+			IntProviders.NON_NEGATIVE_CODEC.optionalFieldOf("ticks_until_close", ConstantInt.of(SharedConstants.TICKS_PER_SECOND * 5)).forGetter(AnvilDropConfig::getTicksUntilClose),
 			Codec.INT.optionalFieldOf("delay", 20 * 2).forGetter(AnvilDropConfig::getDelay),
 			Codec.DOUBLE.optionalFieldOf("chance", 0.4).forGetter(AnvilDropConfig::getChance),
 			Codec.INT.optionalFieldOf("drop_height", 15).forGetter(AnvilDropConfig::getDropHeight),

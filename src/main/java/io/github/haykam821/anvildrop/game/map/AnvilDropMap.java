@@ -3,28 +3,28 @@ package io.github.haykam821.anvildrop.game.map;
 import java.util.Iterator;
 
 import io.github.haykam821.anvildrop.game.AnvilDropConfig;
-import net.minecraft.block.AnvilBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.AnvilBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import xyz.nucleoid.map_templates.BlockBounds;
 import xyz.nucleoid.map_templates.MapTemplate;
-import xyz.nucleoid.plasmid.api.game.world.generator.TemplateChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.level.generator.TemplateChunkGenerator;
 
 public class AnvilDropMap {
-	private static final BlockState CLEAR_STATE = Blocks.AIR.getDefaultState();
-	private static final BlockState ANVIL_STATE = Blocks.ANVIL.getDefaultState();
-	private static final BlockState ALTERNATE_ANVIL_STATE = Blocks.ANVIL.getDefaultState().with(AnvilBlock.FACING, Direction.EAST);
+	private static final BlockState CLEAR_STATE = Blocks.AIR.defaultBlockState();
+	private static final BlockState ANVIL_STATE = Blocks.ANVIL.defaultBlockState();
+	private static final BlockState ALTERNATE_ANVIL_STATE = Blocks.ANVIL.defaultBlockState().setValue(AnvilBlock.FACING, Direction.EAST);
 
 	private final MapTemplate template;
 	private final AnvilDropConfig config;
 	private final BlockBounds platformBounds;
-	private final Box box;
+	private final AABB box;
 	private final BlockBounds clearBounds;
 	private final BlockBounds dropBounds;
 
@@ -33,7 +33,7 @@ public class AnvilDropMap {
 		this.config = config;
 
 		this.platformBounds = platformBounds;
-		this.box = this.platformBounds.asBox().expand(-1, -0.5, -1);
+		this.box = this.platformBounds.asBox().inflate(-1, -0.5, -1);
 
 		this.clearBounds = clearBounds;
 		this.dropBounds = dropBounds;
@@ -43,28 +43,28 @@ public class AnvilDropMap {
 		return this.platformBounds;
 	}
 
-	public Box getBox() {
+	public AABB getBox() {
 		return this.box;
 	}
 
-	public void clearAnvils(ServerWorld world) {
+	public void clearAnvils(ServerLevel level) {
 		Iterator<BlockPos> iterator = this.clearBounds.iterator();
 		while (iterator.hasNext()) {
 			BlockPos pos = iterator.next();
-			if (this.config.isBreaking() && !world.isAir(pos)) {
-				world.breakBlock(pos.withY(0), false);
+			if (this.config.isBreaking() && !level.isEmptyBlock(pos)) {
+				level.destroyBlock(pos.atY(0), false);
 			}
-			world.setBlockState(pos, CLEAR_STATE);
+			level.setBlockAndUpdate(pos, CLEAR_STATE);
 		}
 	}
 
-	public void dropAnvils(ServerWorld world) {
+	public void dropAnvils(ServerLevel level) {
 		Iterator<BlockPos> iterator = this.dropBounds.iterator();
 		while (iterator.hasNext()) {
 			BlockPos pos = iterator.next();
-			if (world.getRandom().nextDouble() < this.config.getChance()) {
-				BlockState state = world.getRandom().nextBoolean() ? ANVIL_STATE : ALTERNATE_ANVIL_STATE;
-				world.setBlockState(pos, state, 0);
+			if (level.getRandom().nextDouble() < this.config.getChance()) {
+				BlockState state = level.getRandom().nextBoolean() ? ANVIL_STATE : ALTERNATE_ANVIL_STATE;
+				level.setBlock(pos, state, 0);
 			}
 		}
 	}

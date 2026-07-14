@@ -3,11 +3,11 @@ package io.github.haykam821.anvildrop.game.phase;
 import io.github.haykam821.anvildrop.game.AnvilDropConfig;
 import io.github.haykam821.anvildrop.game.map.AnvilDropMap;
 import io.github.haykam821.anvildrop.game.map.AnvilDropMapBuilder;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.GameMode;
-import xyz.nucleoid.fantasy.RuntimeWorldConfig;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.GameType;
+import xyz.nucleoid.fantasy.RuntimeLevelConfig;
 import xyz.nucleoid.plasmid.api.game.GameOpenContext;
 import xyz.nucleoid.plasmid.api.game.GameOpenProcedure;
 import xyz.nucleoid.plasmid.api.game.GameResult;
@@ -23,13 +23,13 @@ import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
 public class AnvilDropWaitingPhase {
 	private final GameSpace gameSpace;
-	private final ServerWorld world;
+	private final ServerLevel level;
 	private final AnvilDropMap map;
 	private final AnvilDropConfig config;
 
-	public AnvilDropWaitingPhase(GameSpace gameSpace, ServerWorld world, AnvilDropMap map, AnvilDropConfig config) {
+	public AnvilDropWaitingPhase(GameSpace gameSpace, ServerLevel level, AnvilDropMap map, AnvilDropConfig config) {
 		this.gameSpace = gameSpace;
-		this.world = world;
+		this.level = level;
 		this.map = map;
 		this.config = config;
 	}
@@ -38,11 +38,11 @@ public class AnvilDropWaitingPhase {
 		AnvilDropMapBuilder mapBuilder = new AnvilDropMapBuilder(context.config());
 		AnvilDropMap map = mapBuilder.create();
 
-		RuntimeWorldConfig worldConfig = new RuntimeWorldConfig()
+		RuntimeLevelConfig levelConfig = new RuntimeLevelConfig()
 			.setGenerator(map.createGenerator(context.server()));
 
-		return context.openWithWorld(worldConfig, (game, world) -> {
-			AnvilDropWaitingPhase phase = new AnvilDropWaitingPhase(game.getGameSpace(), world, map, context.config());
+		return context.openWithLevel(levelConfig, (game, level) -> {
+			AnvilDropWaitingPhase phase = new AnvilDropWaitingPhase(game.getGameSpace(), level, map, context.config());
 
 			GameWaitingLobby.addTo(game, context.config().getPlayerConfig());
 			AnvilDropActivePhase.setRules(game);
@@ -56,18 +56,18 @@ public class AnvilDropWaitingPhase {
 	}
 
 	private JoinAcceptorResult onAcceptPlayers(JoinAcceptor acceptor) {
-		return acceptor.teleport(this.world, AnvilDropActivePhase.getSpawnPos(this.map)).thenRunForEach(player -> {
-			player.changeGameMode(GameMode.ADVENTURE);
+		return acceptor.teleport(this.level, AnvilDropActivePhase.getSpawnPos(this.map)).thenRunForEach(player -> {
+			player.setGameMode(GameType.ADVENTURE);
 		});
 	}
 
 	private GameResult requestStart() {
-		AnvilDropActivePhase.open(this.gameSpace, this.world, this.map, this.config);
+		AnvilDropActivePhase.open(this.gameSpace, this.level, this.map, this.config);
 		return GameResult.ok();
 	}
 
-	private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
-		AnvilDropActivePhase.spawn(this.world, this.map, player);
+	private EventResult onPlayerDeath(ServerPlayer player, DamageSource source) {
+		AnvilDropActivePhase.spawn(this.level, this.map, player);
 		return EventResult.DENY;
 	}
 }

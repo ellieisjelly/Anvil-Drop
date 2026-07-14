@@ -1,6 +1,6 @@
 {
 	"type": "anvildrop:anvil_drop",
-	"icon": "minecraft:chain",
+	"icon": "minecraft:iron_chain",
 	"stack_height": 8,
 	"map": {
 		"x": 36,
